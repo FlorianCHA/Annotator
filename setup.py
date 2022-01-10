@@ -57,8 +57,8 @@ def main():
                      'sphinx_click'],
         },
         entry_points={
-            NAME: [NAME + " = __init__"],
-            'console_scripts': [f"{NAME} = {NAME}.main:main"]},
+            "annotator": ["annotator = __init__"],
+            'console_scripts': ["annotator = annotator.main:main"]},
 
         # Pypi information
         platforms=['unix', 'linux'],

@@ -25,25 +25,25 @@ def main(ctx, restore):
 args = str(sys.argv)
 if "sphinx" in args:
     main.add_command(annotator.run_cluster)
-    main.add_command(annotator.create_cluster_config)
-    main.add_command(annotator.create_config)
-    main.add_command(annotator.edit_tools)
+    # main.add_command(annotator.create_cluster_config)
+    # main.add_command(annotator.create_config)
+    # main.add_command(annotator.edit_tools)
     main.add_command(annotator.run_local)
     main.add_command(annotator.install_cluster)
     main.add_command(annotator.install_local)
-    main.add_command(annotator.test_install)
+    # main.add_command(annotator.test_install)
 else:
     mode = get_install_mode()
     if mode == "cluster":
         main.add_command(annotator.test_install)
         main.add_command(annotator.run_cluster)
-        main.add_command(annotator.create_cluster_config)
-        main.add_command(annotator.create_config)
-        main.add_command(annotator.edit_tools)
+        # main.add_command(annotator.create_cluster_config)
+        # main.add_command(annotator.create_config)
+        # main.add_command(annotator.edit_tools)
     elif mode == "local":
         main.add_command(annotator.test_install)
         main.add_command(annotator.run_local)
-        main.add_command(annotator.create_config)
+        # main.add_command(annotator.create_config)
     else:
         main.add_command(annotator.install_cluster)
         main.add_command(annotator.install_local)
