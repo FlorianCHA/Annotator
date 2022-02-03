@@ -99,8 +99,9 @@ def install_cluster(scheduler, env, bash_completion, create_envmodule, modules_d
                                     },
                      replay=False, overwrite_if_exists=True,
                      output_dir=f'{default_profile}', config_file=None,
-                     default_config=False, password=None, directory=None, skip_if_file_exists=True)
+                     default_config=False, password=None, directory=None, skip_if_file_exists=False)
 
+        print('test')
         try:
             # default slurm cookiecutter not contain all snakemake variables
             if scheduler == "slurm":

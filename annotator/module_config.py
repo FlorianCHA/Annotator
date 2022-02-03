@@ -43,9 +43,6 @@ def verif_fasta_file(path_fasta) :
     Parameters :
         path_fasta (str) : path of the fasta protein file
     '''
-    if os.path.isfile(path_directory_fasta) == False :
-        raise ValueError(form(f"ERROR : The path '{path_directory_fasta}' is not valid ,"
-                              f" please check if your file exists",'red', 'bold'))
     if path_fasta.split('.')[-1]  in  ['fasta','fa','faa','fst'] or \
             (path_fasta.split('.')[-2] ['fasta', 'fa', 'faa', 'fst'] and path_fasta.split('.')[-1] == 'gz'):
         return True

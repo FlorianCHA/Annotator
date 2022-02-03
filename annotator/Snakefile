@@ -2,8 +2,9 @@ import glob
 import re
 import sys
 from os.path import join
+import annotator
 from annotator.global_variable import *
-from script.module_config import *
+from module_config import *
 from pathlib import Path
 
 
@@ -15,8 +16,8 @@ from pathlib import Path
 
 # Fasta directory
 data_directory = config["DATA"]["FASTA"]
+suffix_fasta = config["DATA"]["SUFFIX_FASTA"]# for the golb_wildcards function
 data_directory = verif_directory(data_directory,suffix_fasta)
-suffix_fasta # for the golb_wildcards function
 
 # RNAseq directory
 rna_seq_directory = config["DATA"]["RNAseq_DIR"]
@@ -24,7 +25,9 @@ suffix_RNAseq = config["DATA"]["SUFFIX_RNAseq"]
 
 
 # Augustus Parameters
-config_file_augutus = f'{ANNOTATOR_PATH}/Additional_files/config_augustus/'
+# config_file_augutus = f'{ANNOTATOR_PATH}/Additional_files/config_augustus/'
+config_file_augutus = f'/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/config_augustus/' # For test
+
 id_souche = config["DATA"]["ID_SPECIES"]
 verif_species(id_souche,config_file_augutus,rna_seq_directory)
 
@@ -35,7 +38,7 @@ os.system(f'cp {gm_keys} ~/.gm_key')
 
 # Path to protein annotation file
 protein_reference = config["DATA"]["PROTEIN_REF"]
-verif_fasta_file(protein_reference,'protein')
+verif_fasta_file(protein_reference)
 
 # Repeat element data base
 ET_option =  config["DATA"]["REPEAT_MASKING_STEP"]
@@ -180,7 +183,7 @@ rule hisat2_index :
         new_reference_fasta = f"{output_directory}Annotation/1_hisat2/0_reference_fasta/{{smp}}{suffix_fasta}"
     params :
         reference_index_output =  f"{output_directory}Annotation/1_hisat2/0_reference_fasta/{{smp}}", # This line is used in command, the tools want a prefix and not the entire file name
-        ET_step = f'{"{{smp}}.fasta.masked" if ET_option in ["True",True] and assembly_option == False else ""}' # Add extension file if you begin with repeatMasker step.
+        ET_step = f'{"{smp}.fasta.masked" if ET_option in ["True",True]else ""}' # Add extension file if you begin with repeatMasker step.
     log :
         output = f'{log_directory}Annotation/1_hisat2/0_reference_fasta/{{smp}}.o',
         error = f'{log_directory}Annotation/1_hisat2/0_reference_fasta/{{smp}}.e'
