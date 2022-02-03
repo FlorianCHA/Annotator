@@ -365,7 +365,8 @@ rule bam2hints_filter :
     output :
         hints_filtred = f'{output_directory}Annotation/2_hints/RNAseq_hints/hints_{{smp}}.filtered.gff'
     params :
-        path = f"{output_directory}Annotation/1_hisat2/2_merge_bam_file/{{smp}}/"
+        path = f"{output_directory}Annotation/1_hisat2/2_merge_bam_file/{{smp}}/",
+        script=f'{annotator.ANNOTATOR_SCRIPTS}/filterHintsSnake.r'
     log :
         output = f'{log_directory}Annotation/2_hints/RNAseq_hints/{{smp}}.o',
         error = f'{log_directory}Annotation/2_hints/RNAseq_hints/{{smp}}.e'
@@ -382,7 +383,7 @@ rule bam2hints_filter :
         """ + "*" *100
     shell:
         """
-        script/filterHintsSnake.r -s {wildcards.smp} -p {params.path}/ -o {output.hints_filtred} 1> {log.output} 2> {log.error}
+        {params.script} -s {wildcards.smp} -p {params.path}/ -o {output.hints_filtred} 1> {log.output} 2> {log.error}
         """
 
 rule exonerate :
@@ -579,7 +580,9 @@ rule merge_gff:
     output :
         merge_gff =  f'{output_directory}Annotation/5_merged_gff/{{smp}}_{"Augustus" if rna_seq_directory == "" else "merge"}.gff3'
     params :
-        species = id_souche
+        species = id_souche,
+        script=f'{annotator.ANNOTATOR_SCRIPTS}/mergeBraker_augustus.py'
+
     log :
         output = f'{log_directory}Annotation/5_merged_gff/{{smp}}.o',
         error = f'{log_directory}Annotation/5_merged_gff/{{smp}}.e'
@@ -597,7 +600,7 @@ rule merge_gff:
         """ + "*" *100
     shell :
          """
-        script/mergeBraker_augustus.py  --augustus {input.augustus} --braker {input.braker}/braker.gtf -o {output.merge_gff} 1> {log.output} 2> {log.error}
+        {params.script}  --augustus {input.augustus} --braker {input.braker}/braker.gff3 -o {output.merge_gff} 1> {log.output} 2> {log.error}
         """
 
 rule createFasta:
@@ -613,6 +616,8 @@ rule createFasta:
     log :
         output = f'{log_directory}Annotation/6_final_data/{{smp}}.o',
         error = f'{log_directory}Annotation/6_final_data/{{smp}}.e'
+    params :
+        script = f'{annotator.ANNOTATOR_SCRIPTS}/GFF2fasta.py'
     singularity :
         "shub://FlorianCHA/singularity_containers:biopython"
     message :
@@ -627,7 +632,7 @@ rule createFasta:
         """ + "*" *100
     shell :
         """
-        script/GFF2fasta.py --gff {input.gff} --fasta {input.fasta} --prefix {output.fasta_directory}{wildcards.smp} 1> {log.output} 2> {log.error}
+        {params.script} --gff {input.gff} --fasta {input.fasta} --prefix {output.fasta_directory}{wildcards.smp} 1> {log.output} 2> {log.error}
         cp {input.gff} {output.fasta_directory} 1>> {log.output} 2>> {log.error}
         """
 
@@ -662,7 +667,7 @@ rule busco:
         """ 
         export AUGUSTUS_CONFIG_PATH="{params.augustus}"
         cd {params.output_directory}
-        busco -i {input.protein}{wildcards.smp}_protein.fasta -l {params.model} -f -o {wildcards.smp} -m proteins 1> {log.output} 2> {log.error}
+        busco -i {input.protein}{wildcards.smp}_protein.fasta -l {params.model} -f -o {wildcards.smp} -m proteins --offline 1> {log.output} 2> {log.error}
         """
 
 
@@ -682,7 +687,11 @@ rule recuperation_Stat:
         busco =  f'{output_directory}Report/Annotation/data_report/Report_busco.txt'
     params :
         database = BUSCO_lineage ,
-        prefix = f'{output_directory}Report/Annotation/data_report/Report'
+        prefix = f'{output_directory}Report/Annotation/data_report/Report',
+        script_quality = f'{annotator.ANNOTATOR_SCRIPTS}/Quality.py',
+        script_RecupInfo=f'{annotator.ANNOTATOR_SCRIPTS}/RecupInfoGFF.py',
+        script_annotation=f'{annotator.ANNOTATOR_SCRIPTS}//retrieve_annotation_quality.py'
+
     log :
         output = f'{log_directory}Annotation/Report/Quality.o',
         error = f'{log_directory}Annotation/Report/Quality.e'
@@ -698,13 +707,12 @@ rule recuperation_Stat:
         Ouput : 
             - result file   : 
                 * {output.annotation}
-                * {output.assembly}
         """ + "*" *100
     shell :
         """
-        script/Quality.py -d {input.assembly}Annotation/1_hisat2/0_reference_fasta/ -o {output.assembly}
-        script/RecupInfoGFF.py -d {input.outdir}Annotation/5_merged_gff/ -o {output.annotation} -g {input.assembly}Annotation/1_hisat2/0_reference_fasta/
-        script/retrieve_annotation_quality.py -a {input.outdir}Annotation/1_hisat2/1_alignement/ -b {input.outdir}Report/Annotation/BUSCO/ -db {params.database} -p {params.prefix}
+        {params.script_quality} -d {input.assembly}Annotation/1_hisat2/0_reference_fasta/ -o {output.assembly}
+        {params.script_RecupInfo} -d {input.outdir}Annotation/5_merged_gff/ -o {output.annotation} -g {input.assembly}Annotation/1_hisat2/0_reference_fasta/
+        {params.script_annotation} -a {input.outdir}Annotation/1_hisat2/1_alignement/ -b {input.outdir}Report/Annotation/BUSCO/ -db {params.database} -p {params.prefix}
         """
 
 
@@ -718,9 +726,10 @@ rule report:
         annotation = rules.recuperation_Stat.output.annotation,
         busco = rules.recuperation_Stat.output.busco,
         mapping = rules.recuperation_Stat.output.rnaseq
-
     output:
         report = rules.final.input.report_annotation
+    params :
+        script = f'{annotator.ANNOTATOR_SCRIPTS}/report.Rmd',
     log :
         output = f'{log_directory}Annotation/Report/report.o',
         error = f'{log_directory}Annotation/Report/report.e'
@@ -738,5 +747,5 @@ rule report:
         """ + "*" *100
     shell :
         """
-        Rscript -e 'rmarkdown::render("script/report.Rmd", output_file="{output}", quiet=TRUE, params = list(assembly = "{input.assembly}", Annotation = "{input.annotation}", Mapping = "{input.mapping}", busco = "{input.busco}"))'  1> {log.output} 2> {log.error}
+        Rscript -e 'rmarkdown::render("{params.script}", output_file="{output}", quiet=TRUE, params = list(assembly = "{input.assembly}", Annotation = "{input.annotation}", Mapping = "{input.mapping}", busco = "{input.busco}"))'
         """

@@ -1,14 +1,6 @@
 ############################################# Part I : Path of Input and Output data ############################################
 DATA:
-    #############################################################################################################################
-
-    # If you want assembly with ABySS you illumina data please complete this part else, pass this part (keep every path empty '')
-    FASTQ: '' #  Path of you directory which contain all your fastq file to assemble
-    SUFFIX_FASTQ_R1 : '_R1.fastq.gz' # Etension of your R1 fastq files contains in FASTQ directory (for exemple = '_R1.fastq.gz' )
-    SUFFIX_FASTQ_R2 : _R2.fastq.gz # Etension of your R2 fastq files contains in FASTQ directory (for exemple = '' )
-
-    ##############################################################################################################################
-
+    
     # If you have already a assembly and the previous step isn't use, you can complete this part (if the assembly part
     # is complete please pass this part (keep every path empty '')
     FASTA: '/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/fasta_assembly/'
@@ -24,7 +16,7 @@ DATA:
     ID_SPECIES: 'magnaporthe_oryzae' # ID of species for augustus trainings, please refers to augustus main page for this option
     PROTEIN_REF: '/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/OG_filter.fasta' # Path of the protein fasta file, if you don't have this file you can kept empty this option ('')
     GM_KEY : '/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/gm_key_64' # Path of the licence for Genemarks-ES (please give it at http://exon.gatech.edu/GeneMark/license_download.cgi)
-    BUSCO_LINEAGE : '/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/sordariomycetes_odb10/' # ID of the database to use for BUSCO
+    BUSCO_LINEAGE : '/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/sordariomycetes_odb10' # ID of the database to use for BUSCO
 
     ##############################################################################################################################
 

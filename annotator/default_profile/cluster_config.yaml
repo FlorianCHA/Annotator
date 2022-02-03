@@ -1,0 +1,96 @@
+__default__:
+    cpus-per-task : 1
+    mem: "4G"
+    partition: "long"
+    job-name: "{rulename}.{name}.{jobid}"
+
+
+###### Cluster parameters for ABySS_Launch rules ########
+ABySS_Launch :
+  mem: "20G"
+
+###### Cluster parameters for recup_stat rules ########
+recup_stat :
+  mem: "4G"
+
+###### Cluster parameters for summary_stat rules ########
+summary_stat :
+  mem: "4G"
+
+###### Cluster parameters for repeatMasker rules ########
+repeatMasker :
+  mem: "5G"
+  cpus-per-task : 4
+
+###### Cluster parameters for renameFile rules ########
+renameFile :
+  mem: "4G"
+
+###### Cluster parameters for hisat2_index rules ########
+hisat2_index :
+  mem: "4G"
+
+###### Cluster parameters for hisats2_alignement rules ########
+hisat2_alignement:
+  mem: "10G"
+  partition: "long"
+
+###### Cluster parameters for samtools rules ########
+samtools :
+  mem: "10G"
+
+ ###### Cluster parameters for merge_bam rules ########
+merge_bam :
+  mem: "10G"
+
+###### Cluster parameters for sort_bam rules ########
+sort_bam :
+   mem: "20G"
+
+###### Cluster parameters for bam2hints rules ########
+bam2hints :
+  mem: "4G"
+
+###### Cluster parameters for bam2hints_filter rules ########
+bam2hints_filter :
+  mem: "4G"
+
+###### Cluster parameters for exonerate rules ########
+exonerate :
+   mem: "20G"
+   cpus-per-task : 2
+
+###### Cluster parameters for merge_hint rules ########
+merge_hint:
+  mem: "4G"
+
+###### Cluster parameters for BRAKER rules ########
+BRAKER :
+   mem: "10G"
+   cpus-per-task : 2
+
+###### Cluster parameters for augustus rules ########
+augustus :
+  mem: "4G"
+  cpus-per-task : 2
+###### Cluster parameters for merge_gff rules ########
+merge_gff :
+  mem: "4G"
+
+###### Cluster parameters for createFasta rules ########
+createFasta:
+  mem: "4G"
+  partition: "fast"
+
+###### Cluster parameters for busco rules ########
+busco:
+  mem: "4G"
+
+###### Cluster parameters for recuperation_Stat rules ########
+recuperation_Stat:
+  mem: "4G"
+
+###### Cluster parameters for report rules ########
+report:
+  mem: "4G"
+  partition:  "fast"

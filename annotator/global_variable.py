@@ -10,7 +10,7 @@ else:
     ANNOTATOR_PATH = Path(__file__).resolve().parent
 ANNOTATOR_SNAKEFILE = ANNOTATOR_PATH.joinpath("Snakefile")
 ANNOTATOR_MODE = ANNOTATOR_PATH.joinpath(".mode.txt")
-ANNOTATOR_SCRIPTS = ANNOTATOR_PATH.joinpath("snakemake_scripts")
+ANNOTATOR_SCRIPTS = ANNOTATOR_PATH.joinpath("scripts")
 ANNOTATOR_PROFILE = ANNOTATOR_PATH.joinpath("default_profile")
 ANNOTATOR_CONFIG_PATH = ANNOTATOR_PATH.joinpath("install_files", "config.yaml")
 
