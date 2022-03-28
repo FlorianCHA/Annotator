@@ -73,6 +73,7 @@ if __name__ == "__main__":
 	filesreq = parser.add_argument_group('Input mandatory infos for running')
 	filesreq.add_argument('-a', '--augustus',type = str, default = 'None', dest = 'augustus', help = 'Path of the augustus output file')
 	filesreq.add_argument('-b', '--braker',type = str,  required=True, dest = 'BRAKER', help = 'Path of the braker output file')
+	filesreq.add_argument('-s', '--species_id',type = str,  required=True, dest = 'species', help = 'ID of species (ex : Magnaporthe Oryzae = Mo')
 	filesreq.add_argument('-o', '--outFile',type = str, required=True, dest = 'outFile', help = 'Path of the output directory')
 
 	
@@ -80,14 +81,17 @@ if __name__ == "__main__":
 
 	args = parser.parse_args()
 	brakerFile = os.path.abspath(args.BRAKER)
-	augustusFile = os.path.abspath(args.augustus)
-	outFile= os.path.abspath(args.outFile)	
+	if args.augustus != 'None' :
+		augustusFile = os.path.abspath(args.augustus)
+		name = augustusFile.split('/')[-1].replace('.gff3', '')
+		augustusPath = augustusFile.replace(augustusFile.split('/')[-1], '')
+
+	Species_id = args.species
+	outFile= os.path.abspath(args.outFile)
 ########### Gestion directory ##############
 
-	name = augustusFile.split('/')[-1].replace('.gff3','')
 	brakerPath = brakerFile.replace(brakerFile.split('/')[-1],'')
-	augustusPath = augustusFile.replace(augustusFile.split('/')[-1],'')
-
+	name = brakerFile.split('/')[-2]
 
 ############### start message ########################
 
@@ -105,7 +109,12 @@ if __name__ == "__main__":
 		print('Nombre de gene identique : '+str(nbAjout))
 	nbAjout = 0
 	## Launch reformat function for obtain a standard gff3 file
-	reformat_gff_braker(gff_input = brakerFile,gff_output = brakerFile.replace("braker","new_braker"))
+	reformat_gff_braker(gff_input = brakerFile,gff_output = brakerFile.replace(".g","_new.g"))
+	if args.augustus == 'None' :
+		renameGFF(gff_input=brakerFile.replace(".g","_new.g"), strainName=name, Species_id = Species_id,tools='BRAKER', num=1,
+				  gff_output=outFile)
+		exit()
+
 	print(name +' in process')
 	## Open augustus file for obtain all gene information in list. This list help for comparate gene content
 	## between braker and augutus
@@ -125,10 +134,10 @@ if __name__ == "__main__":
 		gene = elt[0]
 		scaffoldA = gene.split('\t')[0]
 		## Open braker for compare the gene content with braker information
-		with  open(brakerFile.replace("braker", "new_braker"), 'r') as braker_file:
+		with  open(brakerFile.replace(".g","_new.g"), 'r') as braker_file:
 			for lineB in braker_file :
 				scaffoldB = lineB.split('\t')[0]
-				# See if the scaffolds are same in augustus and braker gene information
+				# See if the scaffolds are same in augustus and braker gene information.replace(".g","_new.g")
 				if scaffoldA == scaffoldB :
 					scaffold = 'done'
 					typeB = lineB.split('\t')[2]
@@ -146,11 +155,11 @@ if __name__ == "__main__":
 							break
 
 	# Retrieve the last gene ID for add augustus gene
-	with  open(brakerFile.replace("braker", "new_braker"), 'r') as braker_file:
+	with  open(brakerFile.replace(".g","_new.g"), 'r') as braker_file:
 		numberGeneBraker = braker_file.readlines()[-1].split('=g')[-1].split('.t')[0]
 	print('Comparaison done')
 	# Rename braker gff for obtain the same ID in the new gff merge
-	renameGFF(gff_input = brakerFile.replace("braker","new_braker") , strainName = name, tools = 'BRAKER', num = 1, gff_output = f'{brakerPath}{name}_braker.gff3')
+	renameGFF(gff_input = brakerFile.replace("braker","new_braker") , strainName = name, tools = 'BRAKER', Species_id = Species_id, num = 1, gff_output = f'{brakerPath}{name}_braker.gff3')
 	print('rename Braker file done')
 	print('Nombre de genes a ajouter : '+ str(len(liste1)))
 	# Write the new augutus file with only the gene not present in braker gff
@@ -161,7 +170,7 @@ if __name__ == "__main__":
 	f.close()
 	print('Write new gff3 for augustus : Done')
 	# Rename augustus gff for obtain the same ID in the new gff merge
-	renameGFF(gff_input = f'{augustusPath}{name}_prov.gff3' , strainName = name, tools = 'AUGUSTUS', num = (int(numberGeneBraker)+1), gff_output = f'{augustusPath}{name}_augustus.gff3')
+	renameGFF(gff_input = f'{augustusPath}{name}_prov.gff3' , strainName = name, tools = 'AUGUSTUS', Species_id = Species_id, num = (int(numberGeneBraker)+1), gff_output = f'{augustusPath}{name}_augustus.gff3')
 	os.system('rm %s'%(augustusPath+name+'_prov.gff3'))
 	# Concat the two gff
 	os.system('cat %s%s_braker.gff3 %s%s_augustus.gff3 > %s'%(brakerPath,name,augustusPath,name,outFile))

@@ -1,6 +1,6 @@
 {
     "SBATCH_DEFAULTS": "--export=ALL",
     "CLUSTER_NAME": "",
-    "CLUSTER_CONFIG": "/shared/home/fcharriat/magmax/Test_pipeline_Annotation/Annotator/annotator/default_profile/cluster_config.yaml",
+    "CLUSTER_CONFIG": "/shared/ifbstor1/home/fcharriat/Annotator/annotator/default_profile/cluster_config.yaml",
     "ADVANCED_ARGUMENT_CONVERSION": "no"
 }

@@ -25,8 +25,8 @@ suffix_RNAseq = config["DATA"]["SUFFIX_RNAseq"]
 
 
 # Augustus Parameters
-# config_file_augutus = f'{ANNOTATOR_PATH}/Additional_files/config_augustus/'
-config_file_augutus = f'/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/config_augustus/' # For test
+config_file_augutus = f'{ANNOTATOR_PATH}/Additional_files/config_augustus/'
+#config_file_augutus = f'/shared/home/fcharriat/magmax/Test_pipeline_Annotation/data_test/config_augustus/' # For test
 
 id_souche = config["DATA"]["ID_SPECIES"]
 verif_species(id_souche,config_file_augutus,rna_seq_directory)
@@ -45,7 +45,7 @@ ET_option =  config["DATA"]["REPEAT_MASKING_STEP"]
 ET_data_base = config["DATA"]["ET_DB"]
 # if ET_option == 'True' or ET_option == True :
     # verif_fasta_file(ET_data_base,'repeat data base')
-
+species_ID =  config["DATA"]["SPECIES_ID"]
 #BUSO parameters
 BUSCO_lineage = config["DATA"]["BUSCO_LINEAGE"]
 # verif_busco_id(BUSCO_lineage) # For now, the BUSCO_lineage is a directory not a ids
@@ -96,8 +96,8 @@ for directory_log in liste_log :
         os.makedirs(directory_log)
 
 ######### Main code of Workflow #################################################
-SAMPLES, = glob_wildcards(f'{data_directory}{{smp}}{suffix_fasta}')
-RNA, = glob_wildcards(f'{rna_seq_directory}{{rna}}{suffix_RNAseq}') # Warning, they haven't suffix variable for retrieve all RNAseq but they can retrieve  a file which aren't a RNAseq file
+SAMPLES, = glob_wildcards(f'{data_directory}{{smp}}{suffix_fasta}', followlinks=True)
+RNA, = glob_wildcards(f'{rna_seq_directory}{{rna}}{suffix_RNAseq}', followlinks=True) # Warning, they haven't suffix variable for retrieve all RNAseq but they can retrieve  a file which aren't a RNAseq file
 kmere = [20,30,40,50,60,70,80,90]
 
 rule final:
@@ -187,8 +187,8 @@ rule hisat2_index :
     log :
         output = f'{log_directory}Annotation/1_hisat2/0_reference_fasta/{{smp}}.o',
         error = f'{log_directory}Annotation/1_hisat2/0_reference_fasta/{{smp}}.e'
-    singularity:
-        "shub://FlorianCHA/singularity_containers:hisat2"
+    envmodules:
+        "hisat2/2.1.0"
     message :
         """
         Function : out_directory
@@ -221,8 +221,8 @@ rule hisat2_alignement :
     log :
         output = f'{log_directory}Annotation/1_hisat2/1_alignement/alignement/{{smp}}_{{rna}}.o',
         error = f'{log_directory}Annotation/1_hisat2/1_alignement/alignement/{{smp}}_{{rna}}.e'
-    singularity:
-        "shub://FlorianCHA/singularity_containers:hisat2"
+    envmodules:
+        "hisat2/2.1.0 samtools/1.10"
     message :
         """
         Function : 
@@ -251,8 +251,8 @@ rule samtools :
     log :
         output = f'{log_directory}Annotation/1_hisat2/1_alignement/sort/{{smp}}_{{rna}}.o',
         error = f'{log_directory}Annotation/1_hisat2/1_alignement/sort/{{smp}}_{{rna}}.e'
-    singularity:
-        "shub://FlorianCHA/singularity_containers:hisat2"
+    envmodules:
+        "samtools/1.10"
     message :
         """
         Function : 
@@ -281,8 +281,8 @@ rule merge_bam :
     log :
         output = f'{log_directory}Annotation/1_hisat2/2_merge_bam_file/aln/{{smp}}.o',
         error = f'{log_directory}Annotation/1_hisat2/2_merge_bam_file/aln/{{smp}}.e'
-    singularity:
-        "shub://FlorianCHA/singularity_containers:hisat2"
+    envmodules:
+        "samtools/1.10"
     message :
         """
         Function : 
@@ -311,8 +311,8 @@ rule sort_bam :
     log :
         output = f'{log_directory}Annotation/1_hisat2/2_merge_bam_file/sort/{{smp}}.o',
         error = f'{log_directory}Annotation/1_hisat2/2_merge_bam_file/sort/{{smp}}.e'
-    singularity:
-        "shub://FlorianCHA/singularity_containers:hisat2"
+    envmodules:
+        "samtools/1.10"
     message :
         """
         Function : 
@@ -339,8 +339,8 @@ rule bam2hints :
     log :
         output = f'{log_directory}Annotation/1_hisat2/2_merge_bam_file/hints/{{smp}}.o',
         error = f'{log_directory}Annotation/1_hisat2/2_merge_bam_file/hints/{{smp}}.e'
-    singularity:
-        "shub://FlorianCHA/singularity_containers:braker"
+    envmodules:
+        "braker"
     message :
         """
         Function : 
@@ -394,15 +394,14 @@ rule exonerate :
     input :
         protein_reference = protein_reference,
         file = rules.hisat2_index.output.new_reference_fasta
-
     output:
         exonerate = f'{output_directory}Annotation/2_hints/ProtHints/exonerate_{{smp}}.gff3',
         hints = f'{output_directory}Annotation/2_hints/ProtHints/exonerate_{{smp}}.hints.gff3'
     log :
         output = f'{log_directory}Annotation/2_hints/ProtHints/{{smp}}.o',
         error = f'{log_directory}Annotation/2_hints/ProtHints/{{smp}}.e'
-    singularity:
-        "shub://FlorianCHA/singularity_containers:braker"
+    envmodules:
+        "braker"
     message :
         """
         Function : 
@@ -458,9 +457,6 @@ rule merge_hint:
     log :
         output = f'{log_directory}Annotation/2_hints/MergeHints/{{smp}}.o',
         error = f'{log_directory}Annotation/2_hints/MergeHints/{{smp}}.e'
-
-    singularity:
-        "shub://FlorianCHA/singularity_containers:braker"
     message :
         """
         Function : 
@@ -503,12 +499,11 @@ rule BRAKER :
         output = f'{log_directory}Annotation/3_Braker/{{smp}}.o',
         error = f'{log_directory}Annotation/3_Braker/{{smp}}.e'
     params :
-        species = f"--species={id_souche} --useexisting" if id_souche != "" else "",
+        species = f"--species={id_souche}" if id_souche != "" else f"--species={{smp}}",
         augustus = config_file_augutus,
         protein = f'{f"--prot_aln={output_directory}Annotation/2_hints/ProtHints/exonerate_{{smp}}.gff3" if protein_reference != "" else "" }'
-
-    singularity:
-        "shub://FlorianCHA/singularity_containers:braker"
+    envmodules:
+        "braker"
     message :
         """
         Function : 
@@ -522,8 +517,13 @@ rule BRAKER :
         """ + "*" *100
     shell :
         """
-        braker.pl --cores 2 --fungus --gff3 {params.species} --genome={input.genome} {params.protein} --prg=exonerate --bam={input.RNA} --overwrite --alternatives-from-evidence=false --workingdir={output.directory} --AUGUSTUS_CONFIG_PATH={params.augustus} 1> {log.output} 2> {log.error}
+        braker.pl --cores 2 --fungus --gff3 {params.species} --useexisting --genome={input.genome} {params.protein} --prg=exonerate --bam={input.RNA} --overwrite --alternatives-from-evidence=false --workingdir={output.directory} --AUGUSTUS_CONFIG_PATH={params.augustus} 1> {log.output} 2> {log.error}
         """
+
+    #
+    # envmodules:
+    #     "braker"
+    #
 
 rule augustus :
     """
@@ -561,11 +561,11 @@ def input_gff(wilcards):
     """
     Launch or not braker depending on the presence of RNAseq data
     """
+    if id_souche == "" :
+        return({'braker' : rules.BRAKER.output.directory})
     if rna_seq_directory != "" :
         return({'augustus' : rules.augustus.output.gff_file ,
                 'braker' : rules.BRAKER.output.directory})
-    if id_souche == "" :
-        return({'braker' : rules.BRAKER.output.directory})
     else :
         return({'augustus' : rules.augustus.output.gff_file})
 
@@ -581,8 +581,9 @@ rule merge_gff:
         merge_gff =  f'{output_directory}Annotation/5_merged_gff/{{smp}}_{"Augustus" if rna_seq_directory == "" else "merge"}.gff3'
     params :
         species = id_souche,
-        script=f'{annotator.ANNOTATOR_SCRIPTS}/mergeBraker_augustus.py'
-
+        script=f'{annotator.ANNOTATOR_SCRIPTS}/mergeBraker_augustus.py',
+        augustus_option = f'{f"--augustus {output_directory}Annotation/4_Augustus/{{smp}}.gff3" if id_souche != "" else "--augustus None"}',
+        species_id = species_ID
     log :
         output = f'{log_directory}Annotation/5_merged_gff/{{smp}}.o',
         error = f'{log_directory}Annotation/5_merged_gff/{{smp}}.e'
@@ -593,14 +594,14 @@ rule merge_gff:
         Function : 
             - Merge and rename Braker and Augustus output {wildcards.smp}.
         Input : 
-            - augustus file : : {input.augustus}
-            - braker directory : {input.braker}
+
+            - braker directory : {input}
         Ouput : 
             - gff file : {output.merge_gff}
         """ + "*" *100
     shell :
          """
-        {params.script}  --augustus {input.augustus} --braker {input.braker}/braker.gff3 -o {output.merge_gff} 1> {log.output} 2> {log.error}
+        {params.script} {params.augustus_option} --braker {input.braker}/augustus.hints.gff3 -s {params.species_id} -o {output.merge_gff} 1> {log.output} 2> {log.error}
         """
 
 rule createFasta:
@@ -632,7 +633,7 @@ rule createFasta:
         """ + "*" *100
     shell :
         """
-        {params.script} --gff {input.gff} --fasta {input.fasta} --prefix {output.fasta_directory}{wildcards.smp} 1> {log.output} 2> {log.error}
+        {params.script} --gff {input.gff} --fasta {input.fasta} --prefix {output.fasta_directory}/{wildcards.smp} 1> {log.output} 2> {log.error}
         cp {input.gff} {output.fasta_directory} 1>> {log.output} 2>> {log.error}
         """
 
@@ -690,7 +691,7 @@ rule recuperation_Stat:
         prefix = f'{output_directory}Report/Annotation/data_report/Report',
         script_quality = f'{annotator.ANNOTATOR_SCRIPTS}/Quality.py',
         script_RecupInfo=f'{annotator.ANNOTATOR_SCRIPTS}/RecupInfoGFF.py',
-        script_annotation=f'{annotator.ANNOTATOR_SCRIPTS}//retrieve_annotation_quality.py'
+        script_annotation=f'{annotator.ANNOTATOR_SCRIPTS}/retrieve_annotation_quality.py'
 
     log :
         output = f'{log_directory}Annotation/Report/Quality.o',
@@ -710,9 +711,9 @@ rule recuperation_Stat:
         """ + "*" *100
     shell :
         """
-        {params.script_quality} -d {input.assembly}Annotation/1_hisat2/0_reference_fasta/ -o {output.assembly}
-        {params.script_RecupInfo} -d {input.outdir}Annotation/5_merged_gff/ -o {output.annotation} -g {input.assembly}Annotation/1_hisat2/0_reference_fasta/
-        {params.script_annotation} -a {input.outdir}Annotation/1_hisat2/1_alignement/ -b {input.outdir}Report/Annotation/BUSCO/ -db {params.database} -p {params.prefix}
+        {params.script_quality} -d {input.assembly}/Annotation/1_hisat2/0_reference_fasta/ -o {output.assembly}
+        {params.script_RecupInfo} -d {input.outdir}/Annotation/5_merged_gff/ -o {output.annotation} -g {input.assembly}/Annotation/1_hisat2/0_reference_fasta/
+        {params.script_annotation} -a {input.outdir}/Annotation/1_hisat2/1_alignement/ -b {input.outdir}/Report/Annotation/BUSCO/ -db {params.database} -p {params.prefix}
         """
 
 

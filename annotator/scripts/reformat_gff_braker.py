@@ -44,7 +44,8 @@ def reformat_gff_braker(gff_input,gff_output):
 		for line in gff_file :
 			scaffold,tools,type,start,end,frame,sens,unknow,ID = line.strip().split('\t')
 			if type != 'gene' and tools == 'AUGUSTUS':
-				ID = ID.split('_')[-1].split(';')[0].replace('j','')
+				# ID = ID.split('_')[-1].split(';')[0].replace('j','')
+				ID = ID.split('=')[-1].split(';')[0].replace('j','')
 			if type != 'gene' and tools == 'GeneMark.hmm':
 				ID = ID.split('"')[1].split('_')[-2]
 			if ID not in dico.keys() :

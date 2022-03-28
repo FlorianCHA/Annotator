@@ -5,9 +5,9 @@ cluster-status: "slurm-status.py"
 max-jobs-per-second: 1
 max-status-checks-per-second: 10
 local-cores: 1
-jobs : 100
-latency-wait: 60
-use-envmodules: true
-use-singularity: false
-rerun-incomplete: true
+jobs: 200
+latency-wait: 60000000
+use-envmodules: false
+use-singularity: true
+rerun-incomplete: false
 printshellcmds: true

@@ -24,8 +24,6 @@ description_tools = """
     Documentation avail at: """+DOCS+"""
     """+get_last_version(url=DOCS, current_version=__version__)
 
-
-
 MODULE_FILE = f"""
 #%Module1.0
 ##

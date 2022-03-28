@@ -8,6 +8,7 @@ if "sphinx" in args:
     ANNOTATOR_PATH = Path("/Path/to/ANNOTATOR_install/")
 else:
     ANNOTATOR_PATH = Path(__file__).resolve().parent
+print(ANNOTATOR_PATH)
 ANNOTATOR_SNAKEFILE = ANNOTATOR_PATH.joinpath("Snakefile")
 ANNOTATOR_MODE = ANNOTATOR_PATH.joinpath(".mode.txt")
 ANNOTATOR_SCRIPTS = ANNOTATOR_PATH.joinpath("scripts")

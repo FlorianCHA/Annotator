@@ -31,7 +31,7 @@ VERSION_DATE='26/06/2017'
 ##################################################
 ## Function
 
-def renameGFF(gff_input,strainName,tools,num,gff_output) :
+def renameGFF(gff_input,strainName,tools,num,gff_output,Species_id) :
 	"""
 	This function change the format ID in the gff input file/
 	Parameters :
@@ -65,7 +65,7 @@ def renameGFF(gff_input,strainName,tools,num,gff_output) :
 						geneNumeroReformat = str(num)
 					geneNumeroReformat = str(geneNumeroReformat.zfill(5)) + '0'
 					geneName = tabLine[8].split(";")[0].replace("g" + geneNumero,
-																"Mo_" + strainName + "_" + geneNumeroReformat).replace(
+																f"{Species_id}_" + strainName + "_" + geneNumeroReformat).replace(
 						"ID=", "")
 
 					# print(geneNumero)
@@ -80,7 +80,7 @@ def renameGFF(gff_input,strainName,tools,num,gff_output) :
 					numT = str(tabLine[8].split(";")[0].split('.t')[-1])
 					NewnumT = str(int(numT) - 1)
 					mRNAName = tabLine[8].split(";")[0].replace("g" + geneNumero,
-																"Mo_" + strainName + "_" + geneNumeroReformat).replace(
+																f"{Species_id}_" + strainName + "_" + geneNumeroReformat).replace(
 						"ID=", "").replace('.t%s' % numT, 'T%s' % NewnumT)
 					newline = "{0}\tID={1};Parent={2}\n".format("\t".join(tabLine[:8]), mRNAName,
 																geneName)

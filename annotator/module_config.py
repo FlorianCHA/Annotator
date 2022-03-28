@@ -9,7 +9,7 @@
 
 ########## Module ###############
 import os, time
-
+from module_Flo import form
 # TODO : Maybe add in verif_fasta_file if the file is a fasta (use biopython)
 ######### Fonction #############
 
